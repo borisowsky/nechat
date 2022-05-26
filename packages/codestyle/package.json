@@ -1,0 +1,8 @@
+{
+  "name": "@nechat/codestyle",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    ".prettierrc.json"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "extends": "@nechat/tsconfig/tsconfig.nest.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./"
+  }
+}

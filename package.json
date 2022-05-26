@@ -1,0 +1,16 @@
+{
+  "name": "nechat",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "turbo": "turbo"
+  },
+  "devDependencies": {
+    "turbo": "^1.2.14"
+  }
+}
