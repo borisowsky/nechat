@@ -11,12 +11,12 @@ import { AuthService } from './auth.service';
 import { CreateUserDTO, GetUserDTO, UserDTO } from './dtos';
 import { Serialize } from '../decorators';
 
-@Controller('auth')
+@Controller('/auth')
+@Serialize(UserDTO)
 export class AuthController {
   constructor(public authService: AuthService) {}
 
-  @Serialize(UserDTO)
-  @Post('signup')
+  @Post('/signup')
   async createUser(@Body() user: CreateUserDTO) {
     try {
       const createdUser = await this.authService.createUser(
@@ -30,8 +30,7 @@ export class AuthController {
     }
   }
 
-  @Serialize(UserDTO)
-  @Post('signin')
+  @Post('/signin')
   @HttpCode(200)
   async signIn(@Body() user: GetUserDTO) {
     try {
