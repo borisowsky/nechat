@@ -11,7 +11,7 @@ export class AuthService {
   ) {}
 
   async signUp(username: string, password: string) {
-    const user = await this.usersService.createUser(username, password);
+    const user = await this.usersService.create(username, password);
 
     return {
       ...user,
@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   async signIn(username: string, password: string) {
-    const user = await this.usersService.getUser(username, password);
+    const user = await this.usersService.verify(username, password);
 
     return {
       ...user,

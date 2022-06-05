@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  async createUser(username: string, password: string) {
+  async create(username: string, password: string) {
     try {
       const user = await this.prismaService.user.create({
         data: {
@@ -26,21 +26,27 @@ export class UsersService {
     }
   }
 
-  async getUser(username: string, password: string) {
-    const user = await this.prismaService.user.findFirst({
-      where: {
-        username,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`Cannot find user ${username}`);
-    }
+  async verify(username: string, password: string) {
+    const user = await this.findByUsername(username);
 
     if (await argon2.verify(user.password, password)) {
       return user;
     } else {
       throw new BadRequestException('Incorrect password');
     }
+  }
+
+  async findByUsername(username: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User ${username} does not exist`);
+    }
+
+    return user;
   }
 }
