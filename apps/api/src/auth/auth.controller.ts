@@ -1,6 +1,6 @@
 import {
+  BadRequestException,
   Body,
-  ConflictException,
   Controller,
   HttpCode,
   NotFoundException,
@@ -26,7 +26,7 @@ export class AuthController {
 
       return createdUser;
     } catch (e) {
-      throw new ConflictException(e.message);
+      throw new BadRequestException(e.message);
     }
   }
 
