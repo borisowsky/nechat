@@ -1,0 +1,1 @@
+export { SerializeInterceptor } from './SerializeInterceptor';
