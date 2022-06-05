@@ -6,4 +6,7 @@ export class UserDTO {
 
   @Expose()
   username: string;
+
+  @Expose()
+  token: string;
 }

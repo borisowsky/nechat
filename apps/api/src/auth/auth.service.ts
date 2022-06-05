@@ -1,44 +1,36 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import * as argon2 from 'argon2';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
-import { PrismaService } from '../prisma/prisma.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  constructor(public prismaService: PrismaService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-  async createUser(username: string, password: string) {
-    try {
-      return await this.prismaService.user.create({
-        data: {
-          username,
-          password: await argon2.hash(password),
-        },
-      });
-    } catch {
-      throw new BadRequestException(`Username ${username} is taken`);
-    }
+  async signUp(username: string, password: string) {
+    const user = await this.usersService.createUser(username, password);
+
+    return {
+      ...user,
+      token: this.jwtService.sign({
+        id: user.id,
+        username: user.username,
+      }),
+    };
   }
 
-  async getUser(username: string, password: string) {
-    const user = await this.prismaService.user.findFirst({
-      where: {
-        username,
-      },
-    });
+  async signIn(username: string, password: string) {
+    const user = await this.usersService.getUser(username, password);
 
-    if (!user) {
-      throw new NotFoundException(`Cannot find user ${username}`);
-    }
-
-    if (await argon2.verify(user.password, password)) {
-      return user;
-    } else {
-      throw new BadRequestException('Incorrect password');
-    }
+    return {
+      ...user,
+      token: this.jwtService.sign({
+        id: user.id,
+        username: user.username,
+      }),
+    };
   }
 }

@@ -5,6 +5,9 @@
 # Database
 *.db
 
+# Environment
+*.env
+
 # Logs
 logs
 *.log
