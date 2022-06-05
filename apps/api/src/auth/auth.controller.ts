@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  HttpCode,
-  NotFoundException,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { CreateUserDTO, GetUserDTO, UserDTO } from './dtos';
@@ -17,31 +10,13 @@ export class AuthController {
   constructor(public authService: AuthService) {}
 
   @Post('/signup')
-  async createUser(@Body() user: CreateUserDTO) {
-    try {
-      const createdUser = await this.authService.createUser(
-        user.username,
-        user.password,
-      );
-
-      return createdUser;
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+  createUser(@Body() user: CreateUserDTO) {
+    return this.authService.createUser(user.username, user.password);
   }
 
   @Post('/signin')
   @HttpCode(200)
-  async signIn(@Body() user: GetUserDTO) {
-    try {
-      const foundUser = await this.authService.getUser(
-        user.username,
-        user.password,
-      );
-
-      return foundUser;
-    } catch (e) {
-      throw new NotFoundException(e.message);
-    }
+  getUser(@Body() user: GetUserDTO) {
+    return this.authService.getUser(user.username, user.password);
   }
 }

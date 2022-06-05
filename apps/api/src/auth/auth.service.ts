@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as argon2 from 'argon2';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -16,7 +20,7 @@ export class AuthService {
         },
       });
     } catch {
-      throw new Error(`Username ${username} is taken`);
+      throw new BadRequestException(`Username ${username} is taken`);
     }
   }
 
@@ -28,13 +32,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new Error(`Cannot find user ${username}`);
+      throw new NotFoundException(`Cannot find user ${username}`);
     }
 
     if (await argon2.verify(user.password, password)) {
       return user;
     } else {
-      throw new Error('Incorrect password');
+      throw new BadRequestException('Incorrect password');
     }
   }
 }
