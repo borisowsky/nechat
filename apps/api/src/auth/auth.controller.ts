@@ -7,6 +7,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { Request as RequestType } from 'express';
 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
@@ -31,7 +32,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/whoami')
-  whoAmI(@Request() req: any) {
+  whoAmI(@Request() req: RequestType) {
     return req.user;
   }
 }
