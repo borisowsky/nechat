@@ -1,6 +1,15 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './jwt.guard';
 import { SignUpDTO, SignInDTO, UserDTO } from './dtos';
 import { Serialize } from '../decorators';
 
@@ -18,5 +27,11 @@ export class AuthController {
   @HttpCode(200)
   signIn(@Body() user: SignInDTO) {
     return this.authService.signIn(user.username, user.password);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/whoami')
+  whoAmI(@Request() req: any) {
+    return req.user;
   }
 }
