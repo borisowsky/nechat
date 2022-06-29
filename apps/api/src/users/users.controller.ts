@@ -1,9 +1,9 @@
 import {
   Controller,
   Get,
+  NotFoundException,
   Param,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 
 import { UserDTO } from './dtos';
@@ -24,7 +24,13 @@ export class UsersController {
   }
 
   @Get('/:username')
-  getUserByName(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
+  async getUserByName(@Param('username') username: string) {
+    const user = await this.usersService.findByUsername(username);
+
+    if (!user) {
+      throw new NotFoundException(`User ${username} does not exist`);
+    }
+
+    return user;
   }
 }

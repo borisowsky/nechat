@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
-import * as argon2 from 'argon2';
+import { Injectable, BadRequestException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -16,23 +11,13 @@ export class UsersService {
       const user = await this.prismaService.user.create({
         data: {
           username,
-          password: await argon2.hash(password),
+          password,
         },
       });
 
       return user;
     } catch {
-      throw new BadRequestException(`Username ${username} is taken`);
-    }
-  }
-
-  async verify(username: string, password: string) {
-    const user = await this.findByUsername(username);
-
-    if (await argon2.verify(user.password, password)) {
-      return user;
-    } else {
-      throw new BadRequestException('Incorrect password');
+      throw new BadRequestException(`User ${username} already exist`);
     }
   }
 
@@ -42,10 +27,6 @@ export class UsersService {
         username,
       },
     });
-
-    if (!user) {
-      throw new NotFoundException(`User ${username} does not exist`);
-    }
 
     return user;
   }
