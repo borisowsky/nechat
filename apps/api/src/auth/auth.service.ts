@@ -24,6 +24,12 @@ export class AuthService {
   };
 
   async signUp(username: string, password: string) {
+    const existingUser = await this.usersService.findByUsername(username);
+
+    if (existingUser) {
+      throw new BadRequestException(`User ${username} already exist`);
+    }
+
     const hashedPassword = await this.hashPassword(password);
     const user = await this.usersService.create(username, hashedPassword);
 
@@ -43,7 +49,12 @@ export class AuthService {
       throw new NotFoundException(`User ${username} does not exist`);
     }
 
-    if (!(await this.verifyPassword(user.password, password))) {
+    const isPasswordCorrect = await this.verifyPassword(
+      user.password,
+      password,
+    );
+
+    if (!isPasswordCorrect) {
       throw new BadRequestException('Incorrect password');
     }
 

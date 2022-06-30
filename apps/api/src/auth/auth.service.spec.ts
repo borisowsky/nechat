@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { User } from '@prisma/client';
 
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -15,16 +16,22 @@ const MOCKED_JWT_SERVICE: Partial<JwtService> = {
   sign: () => 'test_jwt_token',
 };
 
-const MOCKED_USER_SERVICE: Partial<UsersService> = {
-  create: jest.fn(),
-  findByUsername: jest.fn(),
-};
+const createMockerUsersService = () => {
+  const users: User[] = [];
 
-jest
-  .spyOn(MOCKED_USER_SERVICE, 'create')
-  .mockImplementation((_username: string, hashedPassword: string) => {
-    return Promise.resolve({ ...MOCKED_USER, password: hashedPassword });
-  });
+  return {
+    create: (username: string, hashedPassword: string) => {
+      const user = { id: users.length, username, password: hashedPassword };
+
+      users.push(user);
+
+      return Promise.resolve(user);
+    },
+    findByUsername: (username: string) => {
+      return Promise.resolve(users.find((user) => user.username === username));
+    },
+  };
+};
 
 describe('AuthService', () => {
   let authSerivce: AuthService;
@@ -39,7 +46,7 @@ describe('AuthService', () => {
         },
         {
           provide: UsersService,
-          useValue: MOCKED_USER_SERVICE,
+          useValue: createMockerUsersService(),
         },
       ],
     }).compile();
@@ -62,14 +69,7 @@ describe('AuthService', () => {
   });
 
   it('Can sign in a user with given credentials', async () => {
-    const user = await authSerivce.signUp(
-      MOCKED_USER.username,
-      MOCKED_USER.password,
-    );
-
-    jest
-      .spyOn(MOCKED_USER_SERVICE, 'findByUsername')
-      .mockReturnValue(Promise.resolve(user));
+    await authSerivce.signUp(MOCKED_USER.username, MOCKED_USER.password);
 
     const signedInUser = await authSerivce.signIn(
       MOCKED_USER.username,
@@ -80,26 +80,23 @@ describe('AuthService', () => {
   });
 
   it('Sign in a user with wrong username throws an error', async () => {
-    jest
-      .spyOn(MOCKED_USER_SERVICE, 'findByUsername')
-      .mockImplementation(() => Promise.resolve(null));
-
-    expect(
+    await expect(
       authSerivce.signIn('UserThatDoesNotExist', MOCKED_USER.password),
     ).rejects.toThrow(NotFoundException);
   });
 
+  it('Sign in a user with taken username throws an error', async () => {
+    await authSerivce.signUp(MOCKED_USER.username, MOCKED_USER.password);
+
+    await expect(
+      authSerivce.signUp(MOCKED_USER.username, MOCKED_USER.password),
+    ).rejects.toThrow(BadRequestException);
+  });
+
   it('Sign in a user with wrong password throws an error', async () => {
-    const user = await authSerivce.signUp(
-      MOCKED_USER.username,
-      MOCKED_USER.password,
-    );
+    await authSerivce.signUp(MOCKED_USER.username, MOCKED_USER.password);
 
-    jest
-      .spyOn(MOCKED_USER_SERVICE, 'findByUsername')
-      .mockImplementation(() => Promise.resolve(user));
-
-    expect(
+    await expect(
       authSerivce.signIn(MOCKED_USER.username, '1inc0rr3ctp4ssw0rd'),
     ).rejects.toThrow(BadRequestException);
   });
