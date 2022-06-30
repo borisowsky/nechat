@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 
 const MOCKED_USER = {
-  id: 1,
   username: 'TestUser',
   password: 't3stp4ssw0rd',
 };
@@ -54,7 +53,7 @@ describe('AuthService', () => {
     authSerivce = module.get(AuthService);
   });
 
-  it('Can create an instance of auth service', () => {
+  it('Should be defined', () => {
     expect(authSerivce).toBeDefined();
   });
 
