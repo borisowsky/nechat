@@ -1,27 +1,13 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 
 import { UserDTO } from './dtos';
-import { CurrentUser } from './decorators/current-user.decorator';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from '../auth/jwt.guard';
 import { Serialize } from '../decorators/serialize.decorator';
 
 @Controller('/users')
 @Serialize(UserDTO)
 export class UsersController {
   constructor(private usersService: UsersService) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/whoami')
-  whoAmI(@CurrentUser() user: Omit<UserDTO, 'token'>) {
-    return user;
-  }
 
   @Get('/:username')
   async getUserByName(@Param('username') username: string) {

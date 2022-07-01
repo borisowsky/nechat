@@ -34,38 +34,25 @@ describe('UsersController (e2e)', () => {
     return prismaService.user.deleteMany();
   });
 
-  it('Can get current user', async () => {
-    const { body: signedUpUser } = await request(app.getHttpServer())
-      .post('/v1/auth/signup')
-      .send(USER_MOCK)
-      .expect(201);
-
-    expect(signedUpUser.token).toBeDefined();
-
-    const { body: authenticatedUser } = await request(app.getHttpServer())
-      .get('/v1/users/whoami')
-      .set('Authorization', `Bearer ${signedUpUser.token}`)
-      .expect(200);
-
-    expect(authenticatedUser).toBeDefined();
-    expect(authenticatedUser.id).toBeDefined();
-    expect(authenticatedUser.username).toEqual(USER_MOCK.username);
-    expect(authenticatedUser.password).not.toBeDefined();
-  });
-
-  it('Can get user by given username', async () => {
+  it('POST /v1/users/:username – Can get a user by given username', async () => {
     await request(app.getHttpServer())
       .post('/v1/auth/signup')
       .send(USER_MOCK)
       .expect(201);
 
-    const { body } = await request(app.getHttpServer()).get(
-      `/v1/users/${USER_MOCK.username}`,
-    );
+    const { body } = await request(app.getHttpServer())
+      .get(`/v1/users/${USER_MOCK.username}`)
+      .expect(200);
 
     expect(body).toBeDefined();
     expect(body.id).toBeDefined();
     expect(body.username).toEqual(USER_MOCK.username);
     expect(body.password).not.toBeDefined();
+  });
+
+  it("POST /v1/users/:username – Throws an error if given username isn't exist", async () => {
+    await request(app.getHttpServer())
+      .get(`/v1/users/${USER_MOCK.username}`)
+      .expect(404);
   });
 });
