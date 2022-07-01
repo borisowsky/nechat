@@ -30,7 +30,7 @@ describe('AuthController (e2e)', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     return prismaService.user.deleteMany();
   });
 
@@ -47,6 +47,11 @@ describe('AuthController (e2e)', () => {
   });
 
   it('Sign in a just created user', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/signup')
+      .send(USER_MOCK)
+      .expect(201);
+
     const { body } = await request(app.getHttpServer())
       .post('/v1/auth/signin')
       .send(USER_MOCK)

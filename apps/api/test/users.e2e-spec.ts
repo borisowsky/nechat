@@ -30,7 +30,7 @@ describe('UsersController (e2e)', () => {
     await app.init();
   });
 
-  afterAll(() => {
+  afterEach(() => {
     return prismaService.user.deleteMany();
   });
 
@@ -54,6 +54,11 @@ describe('UsersController (e2e)', () => {
   });
 
   it('Can get user by given username', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/signup')
+      .send(USER_MOCK)
+      .expect(201);
+
     const { body } = await request(app.getHttpServer()).get(
       `/v1/users/${USER_MOCK.username}`,
     );
