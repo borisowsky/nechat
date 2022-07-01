@@ -5,7 +5,15 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super({
-      log: ['query', 'info', 'warn', 'error'],
+      datasources: {
+        db: {
+          url: process.env.PRISMA_DATABASE_URL,
+        },
+      },
+      log:
+        process.env.NODE_ENV === 'development'
+          ? ['query', 'info', 'warn', 'error']
+          : [],
     });
   }
 

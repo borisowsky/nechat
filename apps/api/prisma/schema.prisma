@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./development.db"
+  url      = env("PRISMA_DATABASE_URL")
 }
 
 model User {
